@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: mega-agents-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mega-agents-network
+    restart: unless-stopped
+
+  # PostgreSQL for persistent data storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: mega-agents-postgres
+    environment:
+      POSTGRES_DB: mega_agents
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mega-agents-network
+    restart: unless-stopped
+
+  # Main API Gateway
+  api-gateway:
+    build:
+      context: ../..
+      dockerfile: mega_agents/infrastructure/docker/Dockerfile
+    container_name: mega-agents-api
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://postgres:password@postgres:5432/mega_agents
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - mega-agents-network
+    restart: unless-stopped
+    volumes:
+      - ../..:/app
+    command: python deploy_mega_agents.py
+
+networks:
+  mega-agents-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
