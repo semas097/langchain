@@ -98,8 +98,14 @@ class MegaAgentFactory:
         """Initialize the agent registry with mappings."""
         # Register implemented agents
         from langchain_community.agent_toolkits.ai_mega_agents_factory.agents.data_processing.etl import ETLAgent
+        from langchain_community.agent_toolkits.ai_mega_agents_factory.agents.data_processing.data_validation import DataValidationAgent
+        from langchain_community.agent_toolkits.ai_mega_agents_factory.agents.communication.email import EmailAgent
+        from langchain_community.agent_toolkits.ai_mega_agents_factory.agents.specialist.financial_trading import FinancialTradingAgent
         
         self.register_agent(AgentType.ETL_AGENT, ETLAgent)
+        self.register_agent(AgentType.DATA_VALIDATION_AGENT, DataValidationAgent)
+        self.register_agent(AgentType.EMAIL_AGENT, EmailAgent)
+        self.register_agent(AgentType.FINANCIAL_TRADING_AGENT, FinancialTradingAgent)
         
         # Data Processing Agents
         data_processing_agents = [
