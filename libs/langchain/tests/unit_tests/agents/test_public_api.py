@@ -43,6 +43,8 @@ _EXPECTED = [
     "create_json_chat_agent",
     "create_structured_chat_agent",
     "create_tool_calling_agent",
+    "ModelEvolverAgent",
+    "create_model_evolver_agent",
 ]
 
 

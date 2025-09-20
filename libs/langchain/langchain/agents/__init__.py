@@ -75,6 +75,7 @@ from langchain.agents.structured_chat.base import (
 )
 from langchain.agents.tool_calling_agent.base import create_tool_calling_agent
 from langchain.agents.xml.base import XMLAgent, create_xml_agent
+from langchain.agents.model_evolver.base import ModelEvolverAgent, create_model_evolver_agent
 
 if TYPE_CHECKING:
     from langchain_community.agent_toolkits.json.base import create_json_agent
@@ -178,4 +179,6 @@ __all__ = [
     "create_tool_calling_agent",
     "Tool",
     "tool",
+    "ModelEvolverAgent",
+    "create_model_evolver_agent",
 ]

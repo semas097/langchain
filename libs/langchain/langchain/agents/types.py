@@ -11,6 +11,7 @@ from langchain.agents.openai_functions_multi_agent.base import OpenAIMultiFuncti
 from langchain.agents.react.base import ReActDocstoreAgent
 from langchain.agents.self_ask_with_search.base import SelfAskWithSearchAgent
 from langchain.agents.structured_chat.base import StructuredChatAgent
+from langchain.agents.model_evolver.base import ModelEvolverAgent
 
 AGENT_TYPE = Union[Type[BaseSingleActionAgent], Type[OpenAIMultiFunctionsAgent]]
 
@@ -24,4 +25,5 @@ AGENT_TO_CLASS: Dict[AgentType, AGENT_TYPE] = {
     AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION: StructuredChatAgent,
     AgentType.OPENAI_FUNCTIONS: OpenAIFunctionsAgent,
     AgentType.OPENAI_MULTI_FUNCTIONS: OpenAIMultiFunctionsAgent,
+    AgentType.MODEL_EVOLVER: ModelEvolverAgent,
 }
