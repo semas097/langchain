@@ -55,3 +55,6 @@ class AgentType(str, Enum):
     """An agent optimized for using open AI functions."""
 
     OPENAI_MULTI_FUNCTIONS = "openai-multi-functions"
+    
+    MODEL_EVOLVER = "model-evolver"
+    """An agent specialized in model analysis and evolution strategies."""
