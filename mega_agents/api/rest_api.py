@@ -23,6 +23,9 @@ except ImportError:
     # Fallback for basic HTTP server
     from http.server import HTTPServer, BaseHTTPRequestHandler
     import urllib.parse
+    # Fallback BaseModel class
+    class BaseModel:
+        pass
 
 
 from ..core.agent_registry import agent_registry
