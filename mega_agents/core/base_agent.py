@@ -2,7 +2,8 @@
 
 This module provides the foundational base class for all agents in the Atlas.
 Each agent inherits from BaseAgent and implements enterprise-grade capabilities
-including autonomous operation, revenue generation, and auto-scaling.
+including autonomous operation, revenue generation, auto-scaling, and autonomous
+knowledge adaptation.
 """
 
 import asyncio
@@ -14,6 +15,8 @@ from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass, field
 import uuid
 import json
+
+from .knowledge_adapter import get_knowledge_adapter, AutonomousKnowledgeAdapter
 
 
 class AgentStatus(Enum):
@@ -73,6 +76,7 @@ class BaseAgent(ABC):
     - Self-healing and error recovery
     - Contract automation
     - Performance monitoring
+    - Autonomous knowledge adaptation and learning
     """
 
     def __init__(self, config: AgentConfig):
@@ -95,6 +99,10 @@ class BaseAgent(ABC):
         self._running = False
         self._health_check_interval = 30  # seconds
         self._auto_scale_enabled = True
+        
+        # Initialize autonomous knowledge adapter
+        self.knowledge_adapter = get_knowledge_adapter(config.agent_type)
+        self._knowledge_learning_enabled = True
         self._revenue_tracking_enabled = True
         
     async def start(self) -> bool:
@@ -108,6 +116,10 @@ class BaseAgent(ABC):
             
             # Initialize agent-specific components
             await self._initialize()
+            
+            # Start autonomous knowledge learning
+            if self._knowledge_learning_enabled:
+                await self.knowledge_adapter.start_autonomous_learning()
             
             # Start health monitoring
             asyncio.create_task(self._health_check_loop())
@@ -143,6 +155,10 @@ class BaseAgent(ABC):
         try:
             self.logger.info(f"Stopping {self.config.name} agent...")
             self._running = False
+            
+            # Stop autonomous knowledge learning
+            if self._knowledge_learning_enabled:
+                await self.knowledge_adapter.stop_autonomous_learning()
             
             # Perform cleanup
             await self._cleanup()
@@ -348,12 +364,119 @@ class BaseAgent(ABC):
                         f"Revenue: ${self.metrics.revenue_generated:.2f}, "
                         f"Uptime: {self.metrics.uptime_percentage:.1f}%")
     
+    # Knowledge Adapter Integration Methods
+    
+    async def query_knowledge(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """Query the agent's knowledge base
+        
+        Args:
+            query: Search query for knowledge items
+            limit: Maximum number of results to return
+            
+        Returns:
+            List of knowledge items matching the query
+        """
+        try:
+            knowledge_items = self.knowledge_adapter.query_knowledge(query, limit)
+            return [
+                {
+                    "id": item.id,
+                    "title": item.title,
+                    "content": item.content[:500],  # Truncate for response
+                    "source": item.metadata.get("source_url", "unknown"),
+                    "relevance_score": item.relevance_score,
+                    "content_type": item.content_type
+                }
+                for item in knowledge_items
+            ]
+        except Exception as e:
+            self.logger.error(f"Error querying knowledge: {e}")
+            return []
+    
+    async def get_profit_recommendations(self) -> List[Dict[str, Any]]:
+        """Get profit optimization recommendations from knowledge adapter"""
+        try:
+            recommendations = await self.knowledge_adapter.get_profit_recommendations()
+            self.logger.info(f"Generated {len(recommendations)} profit recommendations")
+            return recommendations
+        except Exception as e:
+            self.logger.error(f"Error getting profit recommendations: {e}")
+            return []
+    
+    async def enhance_capabilities_with_knowledge(self) -> List[str]:
+        """Enhance agent capabilities using learned knowledge"""
+        try:
+            current_capabilities = getattr(self, '_capabilities', [])
+            enhanced_capabilities = await self.knowledge_adapter.enhance_agent_capabilities(current_capabilities)
+            
+            # Update agent capabilities
+            new_capabilities = [cap for cap in enhanced_capabilities if cap not in current_capabilities]
+            if new_capabilities:
+                self.logger.info(f"Enhanced capabilities with: {new_capabilities}")
+                self._capabilities = enhanced_capabilities
+            
+            return enhanced_capabilities
+        except Exception as e:
+            self.logger.error(f"Error enhancing capabilities: {e}")
+            return getattr(self, '_capabilities', [])
+    
+    def get_knowledge_summary(self) -> Dict[str, Any]:
+        """Get summary of agent's knowledge state"""
+        try:
+            return self.knowledge_adapter.get_knowledge_summary()
+        except Exception as e:
+            self.logger.error(f"Error getting knowledge summary: {e}")
+            return {"error": str(e)}
+    
+    async def add_custom_knowledge_source(self, name: str, url: str, 
+                                        source_type: str = "github_repo",
+                                        domain_tags: Optional[List[str]] = None) -> bool:
+        """Add a custom knowledge source for the agent
+        
+        Args:
+            name: Human-readable name for the source
+            url: URL of the knowledge source
+            source_type: Type of source (github_repo, documentation, etc.)
+            domain_tags: Tags to categorize the knowledge
+            
+        Returns:
+            True if source was added successfully
+        """
+        try:
+            from .knowledge_adapter import KnowledgeSource, KnowledgeSourceType
+            
+            source = KnowledgeSource(
+                id=f"custom_{name.lower().replace(' ', '_')}",
+                name=name,
+                url=url,
+                source_type=KnowledgeSourceType(source_type),
+                domain_tags=set(domain_tags or []),
+                priority=5  # Medium priority for custom sources
+            )
+            
+            success = self.knowledge_adapter.add_knowledge_source(source)
+            if success:
+                self.logger.info(f"Added custom knowledge source: {name}")
+            return success
+            
+        except Exception as e:
+            self.logger.error(f"Error adding custom knowledge source: {e}")
+            return False
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert agent to dictionary representation"""
-        return {
+        base_dict = {
             "agent_id": self.agent_id,
             "config": self.config.__dict__,
             "status": self.status.value,
             "created_at": self.created_at.isoformat(),
             "metrics": self.metrics.__dict__
         }
+        
+        # Add knowledge adapter summary
+        try:
+            base_dict["knowledge_summary"] = self.get_knowledge_summary()
+        except Exception as e:
+            base_dict["knowledge_summary"] = {"error": f"Failed to get knowledge summary: {e}"}
+            
+        return base_dict
