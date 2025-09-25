@@ -96,6 +96,13 @@ if TYPE_CHECKING:
     from langchain_community.agent_toolkits.zapier.toolkit import (
         ZapierToolkit,
     )
+    from langchain_community.agent_toolkits.ai_mega_agents_factory import (
+        MegaAgentFactory,
+        AgentType,
+        AgentCategory,
+        create_agent_endpoint,
+        MegaAgentAPIServer,
+    )
 
 __all__ = [
     "AINetworkToolkit",
@@ -127,6 +134,12 @@ __all__ = [
     "create_pbi_chat_agent",
     "create_spark_sql_agent",
     "create_sql_agent",
+    # AI Mega Agents Factory
+    "MegaAgentFactory",
+    "AgentType",
+    "AgentCategory", 
+    "create_agent_endpoint",
+    "MegaAgentAPIServer",
 ]
 
 
@@ -160,6 +173,12 @@ _module_lookup = {
     "create_pbi_chat_agent": "langchain_community.agent_toolkits.powerbi.chat_base",
     "create_spark_sql_agent": "langchain_community.agent_toolkits.spark_sql.base",
     "create_sql_agent": "langchain_community.agent_toolkits.sql.base",
+    # AI Mega Agents Factory
+    "MegaAgentFactory": "langchain_community.agent_toolkits.ai_mega_agents_factory.factory",
+    "AgentType": "langchain_community.agent_toolkits.ai_mega_agents_factory.factory",
+    "AgentCategory": "langchain_community.agent_toolkits.ai_mega_agents_factory.base",
+    "create_agent_endpoint": "langchain_community.agent_toolkits.ai_mega_agents_factory.api",
+    "MegaAgentAPIServer": "langchain_community.agent_toolkits.ai_mega_agents_factory.api",
 }
 
 
